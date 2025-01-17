@@ -1,77 +1,56 @@
-# i have created this file:- Amrit
 from django.http import HttpResponse
 from django.shortcuts import render
 
-
 def index(request):
-    return render(request,'index.html')
-
+    return render(request, 'index.html')
 
 def analyze(request):
-    # get this text
+    # Get the text
     djtext = request.POST.get('text', 'default')
 
-
+    # Check the checkbox values
     removepunc = request.POST.get('removepunc', 'off')
     fullcaps = request.POST.get('fullcaps', 'off')
     newlineremover = request.POST.get('newlineremover', 'off')
     extraspaceremover = request.POST.get('extraspaceremover', 'off')
+    charcount = request.POST.get('charcount', 'off')
+    wordcount = request.POST.get('wordcount', 'off')
+
+    analyzed = djtext
+    purpose = []
 
     if removepunc == "on":
-
         punctuations = '''!()-[]{};:'"\,<>./?@!#$%^&*_~`'''
-        analyzed = ""
-        for char in djtext:
-            if char not in punctuations:
-                analyzed = analyzed + char
-        params = {'purpose':'removed punctuations','analyzed_text': analyzed}
-        #Analyze the text
-        return render(request,'analyze.html',params)
+        analyzed = "".join(char for char in analyzed if char not in punctuations)
+        purpose.append("Removed Punctuations")
 
-    elif(fullcaps=="on"):
-        analyzed = ""
-        for char in djtext:
-            analyzed = analyzed + char.upper()
-            params = {'purpose':'changed to Uppercase', 'analyzed_text': analyzed}
+    if fullcaps == "on":
+        analyzed = analyzed.upper()
+        purpose.append("Changed to Uppercase")
 
-            return render(request, 'analyze.html', params)
+    if newlineremover == "on":
+        analyzed = "".join(char for char in analyzed if char not in ("\n", "\r"))
+        purpose.append("Removed Newlines")
 
-    elif(newlineremover=="on"):
-        analyzed = ""
-        for char in djtext:
-            if char != "\n" and char!= "\r":
-                analyzed = analyzed + char
+    if extraspaceremover == "on":
+        analyzed = " ".join(analyzed.split())
+        purpose.append("Removed Extra Spaces")
 
-        print("pre",analyzed)
-        params = {'purpose':'Removed NewLines', 'analyzed_text': analyzed}
+    if charcount == "on":
+        purpose.append("Character Count")
+        char_count = len(analyzed)
+        analyzed += f"\nCharacter Count: {char_count}"
 
+    if wordcount == "on":
+        purpose.append("Word Count")
+        word_count = len(analyzed.split())
+        analyzed += f"\nWord Count: {word_count}"
+
+    if purpose:
+        params = {'purpose': ', '.join(purpose), 'analyzed_text': analyzed}
         return render(request, 'analyze.html', params)
-
-    elif (extraspaceremover == "on"):
-        analyzed = ""
-        for index, char in enumerate(djtext):
-            if not(djtext[index] == " " and djtext[index + 1]==" "):
-                analyzed = analyzed + char
-
-            params = {'purpose':'Removed NewLines', 'analyzed_text': analyzed}
-            # Analyze the text
-            return render(request, 'analyze.html', params)
-
-
     else:
-        return HttpResponse("Error")
+        return HttpResponse("Error: No option selected.")
 
 
-#def capfirst(request):
-   # return HttpResponse("capitalize first")
-
-#def newlineremove(request):
- #   return HttpResponse("newlineremove")
-
-#def spaceremove(request):
- #   return HttpResponse("spaceremove <a href='/'>back</a>")
-
-#def charcount(request):
-  #  return HttpResponse("charcount")
-
-
+    
