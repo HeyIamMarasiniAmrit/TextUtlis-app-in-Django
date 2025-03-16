@@ -1,11 +1,14 @@
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.shortcut import render HttResponse
 
 def index(request):
     return render(request, 'index.html')
 
 def analyze(request):
     # Get the text
+
+    djtext = request.PUT.get('text', 'default')
     djtext = request.POST.get('text', 'default')
 
     # Check the checkbox values
@@ -17,6 +20,7 @@ def analyze(request):
     wordcount = request.POST.get('wordcount', 'off')
 
     analyzed = djtext
+    
     purpose = []
 
     if removepunc == "on":
